@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.07.00">
+    <object class="AudioFile" id="{11388cb6-b48f-4560-93e4-210592ce212d}">
+        <property name="frequencyInKHz">
+            <value>48</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>1.0636041666666667</value>
+        </property>
+        <property name="audioFilePath">
+            <value>$(AUDIO_BIN_DIR)/bajatruck_limiter {e02b02ea-25db-4506-b0e2-c404e05ec95a}.wav</value>
+        </property>
+        <relationship name="container">
+            <destination>{a871eeb0-603e-42dc-b589-c97e19efca05}</destination>
+        </relationship>
+    </object>
+</objects>
