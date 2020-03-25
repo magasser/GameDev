@@ -40,6 +40,25 @@ public class CarBehaviour : MonoBehaviour
     private float _maxSpeedKMH;
     private float _maxSpeedBackwardKMH;
 
+    private Gear[] sportGears = new Gear[]
+                {
+                    new Gear(1, 700, 40, 5200),
+                    new Gear(40, 3000, 72, 5600),
+                    new Gear(72, 3800, 110, 6100),
+                    new Gear(110, 4700, 151, 6500),
+                    new Gear(151, 5300, 197, 7100),
+                    new Gear(197, 5400, 180, 8000)
+                };
+    private Gear[] comfortGears = new Gear[]
+                {
+                    new Gear(1, 900, 12, 1400),
+                    new Gear(12, 900, 25, 2000),
+                    new Gear(25, 1350, 45, 2500),
+                    new Gear(45, 1950, 70, 3500),
+                    new Gear(70, 2500, 112, 4000),
+                    new Gear(112, 3100, 180, 5000)
+                };
+
     void Start()
     {
         
@@ -224,37 +243,13 @@ public class CarBehaviour : MonoBehaviour
         switch (gearType)
         {
             case GearType.Sport:
-                gears = new Gear[]
-                {
-                    new Gear(1, 700, 40, 5200),
-                    new Gear(40, 3000, 72, 5600),
-                    new Gear(72, 3800, 110, 6100),
-                    new Gear(110, 4700, 151, 6500),
-                    new Gear(151, 5300, 197, 7100),
-                    new Gear(197, 5400, 180, 8000)
-                };
+                gears = sportGears;
                 break;
             case GearType.Comfort:
-                gears = new Gear[]
-                {
-                    new Gear(1, 900, 12, 1400),
-                    new Gear(12, 900, 25, 2000),
-                    new Gear(25, 1350, 45, 2500),
-                    new Gear(45, 1950, 70, 3500),
-                    new Gear(70, 2500, 112, 4000),
-                    new Gear(112, 3100, 180, 5000)
-                };
+                gears = comfortGears;
                 break;
             default:
-                gears = new Gear[]
-                {
-                    new Gear( 1, 900, 12, 1400),
-                    new Gear( 12, 900, 25, 2000),
-                    new Gear( 25, 1350, 45, 2500),
-                    new Gear( 45, 1950, 70, 3500),
-                    new Gear( 70, 2500, 112, 4000),
-                    new Gear(112, 3100, 180, 5000)
-                };
+                gears = comfortGears;
                 break;
         }
 
