@@ -21,6 +21,7 @@ public class CarBehaviour : MonoBehaviour
     public float sidewaysFriction;
     public Transform centerOfMass;
     public float engineVolume;
+    public float maxTacho = 150;
 
     public RectTransform speedPointerTransform;
     public TMP_Text speedText;
@@ -202,7 +203,7 @@ public class CarBehaviour : MonoBehaviour
     void OnGUI()
     {
         // Speedpointer rotation
-        double degAroundZ = Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140));
+        double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTacho);
         speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
         // SpeedText show current KMH
         speedText.text = _currentSpeedKMH.ToString("0");
