@@ -17,8 +17,8 @@ public class CarBehaviour : MonoBehaviour
     public WheelCollider wheelRL;
     public GearType gearType;
     public float maxSteerAngle = 45;
-    public float forwardFriction;
-    public float sidewaysFriction;
+    public float forwardFriction = 2;
+    public float sidewaysFriction = 1;
     public Transform centerOfMass;
     public float engineVolume;
     public float maxTacho = 150;
@@ -40,6 +40,7 @@ public class CarBehaviour : MonoBehaviour
     private float _torqueReduction;
     private float _maxSpeedKMH;
     private float _maxSpeedBackwardKMH;
+    private bool _canChangeGearType;
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -120,6 +121,27 @@ public class CarBehaviour : MonoBehaviour
         bool doBraking = _currentSpeedKMH > 0.5f &&
         (Input.GetAxis("Vertical") < 0 && velocityIsForeward ||
         Input.GetAxis("Vertical") > 0 && !velocityIsForeward);
+
+        bool changeGearType = Input.GetAxis("GearChange") > 0;
+
+        if (!changeGearType)
+        {
+            _canChangeGearType = true;
+        }
+
+        if(changeGearType && _canChangeGearType)
+        {
+            if(gearType == GearType.Comfort)
+            {
+                gearType = GearType.Sport;
+            } 
+            else if(gearType == GearType.Sport)
+            {
+                gearType = GearType.Comfort;
+            }
+
+            _canChangeGearType = false;
+        }
 
         if (doBraking)
         {
