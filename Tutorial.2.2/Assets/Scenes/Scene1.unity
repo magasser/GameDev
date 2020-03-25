@@ -620,14 +620,12 @@ MonoBehaviour:
   wheelFR: {fileID: 706137690}
   wheelRR: {fileID: 2064120868}
   wheelRL: {fileID: 977667838}
-  maxTorque: 500
+  gearType: 1
   maxSteerAngle: 45
-  maxSpeedKMH: 150
-  maxSpeedBackwardKMH: 30
   forwardFriction: 2
-  sidewaysFriction: 1
+  sidewaysFriction: 5
   centerOfMass: {fileID: 1369975442}
-  engineVolume: 0.3
+  engineVolume: 0.1
   speedPointerTransform: {fileID: 28215315}
   speedText: {fileID: 384873477}
   gearText: {fileID: 1055627317}
@@ -1462,7 +1460,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 332.2457
+      value: 777.24945
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
@@ -1472,7 +1470,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 281.0836
+      value: 412.96875
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
@@ -1482,7 +1480,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.1963148
+      value: -0.9899972
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
@@ -1492,7 +1490,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.98054093
+      value: 0.14108686
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
@@ -1507,7 +1505,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -22.643002
+      value: -163.779
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
