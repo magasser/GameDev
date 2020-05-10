@@ -489,7 +489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1816ab7ffbae4b542a63c95b26137656, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wheelFL: {fileID: 1991737732}
+  wheelFL: {fileID: 1207636691}
   wheelFR: {fileID: 1991737732}
   wheelRR: {fileID: 908629256}
   wheelRL: {fileID: 1403778784}
@@ -529,6 +529,12 @@ MonoBehaviour:
   timeText: {fileID: 1342444027}
   countdownSoundClip: {fileID: 8300000, guid: 88a3709b4f5084812a1e4773a42024a0, type: 3}
   countdownVolume: 0.7
+--- !u!146 &1207636691 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 2013571957, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1342444027 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2186847439669640165, guid: 89d6cdf16eeb3524fbaac6510d607f74,
