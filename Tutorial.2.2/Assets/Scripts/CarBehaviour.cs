@@ -15,13 +15,17 @@ public class CarBehaviour : MonoBehaviour
     public WheelCollider wheelFR;
     public WheelCollider wheelRR;
     public WheelCollider wheelRL;
+    public WheelBehaviour[] wheelBehaviours = new WheelBehaviour[4];
+
     public GearType gearType;
     public float maxSteerAngle = 45;
     public float forwardFriction = 2;
     public float sidewaysFriction = 1;
     public Transform centerOfMass;
     public float engineVolume;
-    public float maxTacho = 150;
+    public float maxTachoAngle = 30;
+
+    public bool thrustEnabled;
 
     public RectTransform speedPointerTransform;
     public TMP_Text speedText;
@@ -41,6 +45,34 @@ public class CarBehaviour : MonoBehaviour
     private float _maxSpeedKMH;
     private float _maxSpeedBackwardKMH;
     private bool _canChangeGearType;
+
+    public ParticleSystem smokeL;
+    public ParticleSystem smokeR;
+
+    public ParticleSystem dustFL;
+    public ParticleSystem dustFR; 
+    public ParticleSystem dustRL;
+    public ParticleSystem dustRR;
+
+    private ParticleSystem.EmissionModule _smokeLEmission;
+    private ParticleSystem.EmissionModule _smokeREmission;
+
+    private ParticleSystem.EmissionModule _dustFLEmission;
+    private ParticleSystem.EmissionModule _dustFREmission;
+    private ParticleSystem.EmissionModule _dustRLEmission;
+    private ParticleSystem.EmissionModule _dustRREmission;
+
+    private bool _carIsOnDrySand;
+    private string _groundTagRL;
+    private string _groundTagRR;
+    private int _groundTextureRL;
+    private int _groundTextureRR;
+
+    public float fullBrakeTorque = 5000;
+    public AudioClip brakeAudioClip;
+    private bool _doSkidmarking;
+    private bool _carIsNotOnSand;
+    private AudioSource _brakeAudioSource;
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -80,6 +112,31 @@ public class CarBehaviour : MonoBehaviour
         _engineAudioSource.enabled = false; // Bugfix
         _engineAudioSource.enabled = true; // Bugfix
 
+        _smokeLEmission = smokeL.emission;
+        _smokeREmission = smokeR.emission;
+        _smokeLEmission.enabled = true;
+        _smokeREmission.enabled = true;
+
+        _dustFLEmission = dustFL.emission;
+        _dustFREmission = dustFR.emission;
+        _dustRLEmission = dustRL.emission;
+        _dustRREmission = dustRR.emission;
+        _dustFLEmission.enabled = true;
+        _dustFREmission.enabled = true;
+        _dustRLEmission.enabled = true;
+        _dustRREmission.enabled = true;
+
+        _brakeAudioSource = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _brakeAudioSource.clip = brakeAudioClip;
+        _brakeAudioSource.loop = true;
+        _brakeAudioSource.volume = 0.7f;
+        _brakeAudioSource.playOnAwake = false;
+
+    }
+
+    void FixedUpdate()
+    {
+        // Set torque and speed values according to gear type
         switch (gearType)
         {
             case GearType.Sport:
@@ -108,10 +165,14 @@ public class CarBehaviour : MonoBehaviour
                 break;
 
         }
-    }
-    void FixedUpdate()
-    {
+
         _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
+
+        // Evaluate ground under front wheels
+        WheelHit hitFL = GetGroundInfos(ref wheelRL, ref _groundTagRL, ref _groundTextureRL);
+        WheelHit hitFR = GetGroundInfos(ref wheelRR, ref _groundTagRR, ref _groundTextureRR);
+        _carIsOnDrySand = _groundTagRL.CompareTo("Terrain") == 0 && _groundTextureRL == 1;
+        _carIsNotOnSand = !(_groundTagRL.CompareTo("Terrain") == 0 && (_groundTextureRL <= 1));
 
         // Determine if the car is driving forwards or backwards
         bool velocityIsForeward = Vector3.Angle(transform.forward,
@@ -122,7 +183,7 @@ public class CarBehaviour : MonoBehaviour
         (Input.GetAxis("Vertical") < 0 && velocityIsForeward ||
         Input.GetAxis("Vertical") > 0 && !velocityIsForeward);
 
-        bool changeGearType = Input.GetAxis("GearChange") > 0;
+        bool changeGearType = Input.GetButton("GearTypeChange");
 
         if (!changeGearType)
         {
@@ -143,21 +204,39 @@ public class CarBehaviour : MonoBehaviour
             _canChangeGearType = false;
         }
 
-        if (doBraking)
+        bool carIsSliding = Vector3.Dot(Vector3.Normalize(_rigidBody.velocity), Vector3.Normalize(transform.forward)) < .85f;
+        bool doFullBrake = Input.GetKey("space");
+        _doSkidmarking = _carIsNotOnSand && (doFullBrake || carIsSliding) && _currentSpeedKMH > 20f;
+
+        SetBrakeSound(_doSkidmarking);
+        SetSkidmarking(_doSkidmarking);
+
+        if (doBraking || doFullBrake)
         {
-            if(velocityIsForeward)
+
+            if (doFullBrake)
             {
-                wheelFL.brakeTorque = -_maxBreakTorqueFront * Input.GetAxis("Vertical");
-                wheelFR.brakeTorque = wheelFL.brakeTorque;
-                wheelRL.brakeTorque = -_maxBreakTorqueRear * Input.GetAxis("Vertical");
-                wheelRR.brakeTorque = wheelRL.brakeTorque;
+                wheelFL.brakeTorque = fullBrakeTorque;
+                wheelFR.brakeTorque = fullBrakeTorque;
+                wheelRL.brakeTorque = fullBrakeTorque;
+                wheelRR.brakeTorque = fullBrakeTorque;
             }
             else
             {
-                wheelFL.brakeTorque = _maxBreakTorqueFront * Input.GetAxis("Vertical");
-                wheelFR.brakeTorque = wheelFL.brakeTorque;
-                wheelRL.brakeTorque = _maxBreakTorqueRear * Input.GetAxis("Vertical");
-                wheelRR.brakeTorque = wheelRL.brakeTorque;
+                if (velocityIsForeward)
+                {
+                    wheelFL.brakeTorque = -_maxBreakTorqueFront * Input.GetAxis("Vertical");
+                    wheelFR.brakeTorque = wheelFL.brakeTorque;
+                    wheelRL.brakeTorque = -_maxBreakTorqueRear * Input.GetAxis("Vertical");
+                    wheelRR.brakeTorque = wheelRL.brakeTorque;
+                }
+                else
+                {
+                    wheelFL.brakeTorque = _maxBreakTorqueFront * Input.GetAxis("Vertical");
+                    wheelFR.brakeTorque = wheelFL.brakeTorque;
+                    wheelRL.brakeTorque = _maxBreakTorqueRear * Input.GetAxis("Vertical");
+                    wheelRR.brakeTorque = wheelRL.brakeTorque;
+                }
             }
 
             wheelFL.motorTorque = 0;
@@ -170,17 +249,21 @@ public class CarBehaviour : MonoBehaviour
             wheelRL.brakeTorque = 0;
             wheelRR.brakeTorque = 0;
             float torque = _maxTorque - (_currentGear * _torqueReduction);
-            if (velocityIsForeward && _currentSpeedKMH < _maxSpeedKMH)
+
+            if (thrustEnabled)
             {
-                SetMotorTorque(torque * Input.GetAxis("Vertical"));
-            }
-            else if (!velocityIsForeward && _currentSpeedKMH < _maxSpeedBackwardKMH)
-            {
-                SetMotorTorque(torque * Input.GetAxis("Vertical"));
-            }
-            else
-            {
-                SetMotorTorque(0);
+                if (velocityIsForeward && _currentSpeedKMH < _maxSpeedKMH)
+                {
+                    SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                }
+                else if (!velocityIsForeward && _currentSpeedKMH < _maxSpeedBackwardKMH)
+                {
+                    SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                }
+                else
+                {
+                    SetMotorTorque(0);
+                }
             }
         }
 
@@ -193,6 +276,27 @@ public class CarBehaviour : MonoBehaviour
         float engineRPM = kmh2rpm(_currentSpeedKMH, out gearNum, gearType);
         _currentGear = gearNum;
         SetEngineSound(engineRPM);
+
+        SetParticleSystems(engineRPM);
+    }
+
+    void SetParticleSystems(float engineRMP)
+    {
+        float smokeRate = engineRMP / 80f;
+        _smokeLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
+        _smokeREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
+
+        float dustRate = 0f;
+
+        if (_currentSpeedKMH > 10f && _carIsOnDrySand)
+        {
+            dustRate = _currentSpeedKMH * 10f;
+        }
+
+        _dustFLEmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
+        _dustFREmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
+        _dustRLEmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
+        _dustRREmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
     }
 
     void SetSteerAngle(float angle)
@@ -225,7 +329,7 @@ public class CarBehaviour : MonoBehaviour
     void OnGUI()
     {
         // Speedpointer rotation
-        double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTacho);
+        double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTachoAngle);
         speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
         // SpeedText show current KMH
         speedText.text = _currentSpeedKMH.ToString("0");
@@ -297,5 +401,44 @@ public class CarBehaviour : MonoBehaviour
         float maxPitch = 3.0f;
         float pitch = ((engineRPM - minRPM) * (maxPitch - minPitch) / (maxRPM - minRPM)) + minPitch;
         _engineAudioSource.pitch = pitch;
+    }
+
+    WheelHit GetGroundInfos(ref WheelCollider wheelCol,
+        ref string groundTag,
+        ref int groundTextureIndex)
+    {
+        // Default values
+        groundTag = "InTheAir";
+        groundTextureIndex = -1;
+        // Query ground by ray shoot on the front left wheel collider
+        WheelHit wheelHit;
+        wheelCol.GetGroundHit(out wheelHit);
+        // If not in the air query collider
+        if (wheelHit.collider)
+        {
+            groundTag = wheelHit.collider.tag;
+            if (wheelHit.collider.CompareTag("Terrain"))
+                groundTextureIndex = TerrainSurface.GetMainTexture(transform.position);
+        }
+
+        return wheelHit;
+    }
+
+    void SetBrakeSound(bool doBrakeSound)
+    {
+        if (doBrakeSound)
+        {
+            _brakeAudioSource.volume = _currentSpeedKMH / 100.0f;
+            _brakeAudioSource.Play();
+        }
+        else
+            _brakeAudioSource.Stop();
+    }
+
+    // Turns skidmarking on or off on all wheels
+    void SetSkidmarking(bool doSkidmarking)
+    {
+        foreach (var wheel in wheelBehaviours)
+            wheel.DoSkidmarking(doSkidmarking);
     }
 }
