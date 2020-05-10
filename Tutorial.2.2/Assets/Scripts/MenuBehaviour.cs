@@ -44,6 +44,7 @@ public class MenuBehaviour : MonoBehaviour
 
     public void OnStartClick()
     {
+        _prefs.Save();
         SceneManager.LoadScene("SceneGame");
     }
 
