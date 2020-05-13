@@ -9,7 +9,7 @@ public enum GearType
     Sport
 }
 
-public class CarBehaviour : MonoBehaviour
+public class CarBehaviour : NetworkBehaviour
 {
     public WheelCollider wheelFL;
     public WheelCollider wheelFR;
@@ -134,6 +134,9 @@ public class CarBehaviour : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!isLocalPlayer)
+            return;
+
         // Set torque and speed values according to gear type
         switch (gearType)
         {
@@ -328,6 +331,9 @@ public class CarBehaviour : MonoBehaviour
 
     void OnGUI()
     {
+        if (!isLocalPlayer)
+            return;
+
         // Speedpointer rotation
         double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTachoAngle);
         speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
