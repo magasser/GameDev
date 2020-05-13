@@ -2,6 +2,7 @@
 using System.Collections;
 using TMPro;
 using System;
+using UnityEngine.Networking;
 
 public enum GearType
 {
@@ -25,7 +26,7 @@ public class CarBehaviour : NetworkBehaviour
     public float engineVolume;
     public float maxTachoAngle = 30;
 
-    public bool thrustEnabled;
+    public bool thrustEnabled = true;
 
     public RectTransform speedPointerTransform;
     public TMP_Text speedText;
@@ -73,6 +74,7 @@ public class CarBehaviour : NetworkBehaviour
     private bool _doSkidmarking;
     private bool _carIsNotOnSand;
     private AudioSource _brakeAudioSource;
+    private bool _isInitialized = false;
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -129,6 +131,8 @@ public class CarBehaviour : NetworkBehaviour
         _brakeAudioSource.loop = true;
         _brakeAudioSource.volume = 0.7f;
         _brakeAudioSource.playOnAwake = false;
+        _isInitialized = true;
+
 
     }
 
@@ -217,10 +221,9 @@ public class CarBehaviour : NetworkBehaviour
 
             if (doFullBrake)
             {
-                wheelFL.brakeTorque = fullBrakeTorque;
-                wheelFR.brakeTorque = fullBrakeTorque;
-                wheelRL.brakeTorque = fullBrakeTorque;
-                wheelRR.brakeTorque = fullBrakeTorque;
+                bool doSound = doFullBrake && _currentSpeedKMH > 5.0f && _carIsNotOnSand;
+                SetBrakeSound(doSound);
+                SetBrakeTorque(fullBrakeTorque);
             }
             else
             {
@@ -240,15 +243,11 @@ public class CarBehaviour : NetworkBehaviour
                 }
             }
 
-            wheelFL.motorTorque = 0;
-            wheelFR.motorTorque = 0;
+            SetMotorTorque(0);
         }
         else
         {
-            wheelFL.brakeTorque = 0;
-            wheelFR.brakeTorque = 0;
-            wheelRL.brakeTorque = 0;
-            wheelRR.brakeTorque = 0;
+            SetBrakeTorque(0);
             float torque = _maxTorque - (_currentGear * _torqueReduction);
 
             if (thrustEnabled)
@@ -277,8 +276,47 @@ public class CarBehaviour : NetworkBehaviour
         float engineRPM = kmh2rpm(_currentSpeedKMH, out gearNum, gearType);
         _currentGear = gearNum;
         SetEngineSound(engineRPM);
+        SetRPMEffects(engineRPM);
 
+    }
+
+    void SetMotorTorque(float amount)
+    {
+        if (!_isInitialized) return;
+        wheelFL.motorTorque = amount;
+        wheelFR.motorTorque = amount;
+    }
+    void SetBrakeTorque(float amount)
+    {
+        if (!_isInitialized) return;
+        wheelFL.brakeTorque = amount;
+        wheelFR.brakeTorque = amount;
+        wheelRL.brakeTorque = amount;
+        wheelRR.brakeTorque = amount;
+    }
+    void SetSteerAngle(float angle)
+    {
+        if (!_isInitialized) return;
+        wheelFL.steerAngle = angle;
+        wheelFR.steerAngle = angle;
+    }
+    void SetBrakeSound(bool doSound)
+    {
+        if (!_isInitialized) return;
+        if (doSound)
+        {
+            _brakeAudioSource.volume = _currentSpeedKMH / 100.0f;
+            _brakeAudioSource.Play();
+        }
+        else
+            _brakeAudioSource.Stop();
+    }
+
+    void SetRPMEffects(float engineRPM)
+    {
+        if (!_isInitialized) return;
         SetParticleSystems(engineRPM);
+        SetEngineSound(engineRPM);
     }
 
     void SetParticleSystems(float engineRMP)
@@ -298,18 +336,6 @@ public class CarBehaviour : NetworkBehaviour
         _dustFREmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
         _dustRLEmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
         _dustRREmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
-    }
-
-    void SetSteerAngle(float angle)
-    {
-        wheelFL.steerAngle = angle;
-        wheelFR.steerAngle = angle;
-    }
-
-    void SetMotorTorque(float amount)
-    {
-        wheelFL.motorTorque = amount;
-        wheelFR.motorTorque = amount;
     }
 
     public void SetFriction(float forwardFriction, float sidewaysFriction)
@@ -428,17 +454,6 @@ public class CarBehaviour : NetworkBehaviour
         }
 
         return wheelHit;
-    }
-
-    void SetBrakeSound(bool doBrakeSound)
-    {
-        if (doBrakeSound)
-        {
-            _brakeAudioSource.volume = _currentSpeedKMH / 100.0f;
-            _brakeAudioSource.Play();
-        }
-        else
-            _brakeAudioSource.Stop();
     }
 
     // Turns skidmarking on or off on all wheels
