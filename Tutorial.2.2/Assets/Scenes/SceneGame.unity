@@ -493,8 +493,32 @@ MonoBehaviour:
   wheelFR: {fileID: 1991737732}
   wheelRR: {fileID: 908629256}
   wheelRL: {fileID: 1403778784}
+  canisters: {fileID: 1792892894848930672}
+  cannon: {fileID: 1792892894848930671}
+  rocketL: {fileID: 1792892894848930670}
+  rocketR: {fileID: 1792892894848930669}
+  meshRenderer: {fileID: 1142974201}
+  carBehaviour: {fileID: 1792892894848930668}
   suspDistanceSlider: {fileID: 0}
   distanceText: {fileID: 0}
+  springSlider: {fileID: 0}
+  springText: {fileID: 0}
+  damperSlider: {fileID: 0}
+  damperText: {fileID: 0}
+  forwardFrictionSlider: {fileID: 0}
+  forwardFrictionText: {fileID: 0}
+  sidewaysFrictionSlider: {fileID: 0}
+  sidewaysFrictionText: {fileID: 0}
+  hueSlider: {fileID: 0}
+  hueText: {fileID: 0}
+  saturationSlider: {fileID: 0}
+  saturationText: {fileID: 0}
+  valueSlider: {fileID: 0}
+  valueText: {fileID: 0}
+  canistersToggle: {fileID: 0}
+  cannonToggle: {fileID: 0}
+  rocketLToggle: {fileID: 0}
+  rocketRToggle: {fileID: 0}
 --- !u!114 &1055627317 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2186847438228468267, guid: 89d6cdf16eeb3524fbaac6510d607f74,
@@ -529,6 +553,12 @@ MonoBehaviour:
   timeText: {fileID: 1342444027}
   countdownSoundClip: {fileID: 8300000, guid: 88a3709b4f5084812a1e4773a42024a0, type: 3}
   countdownVolume: 0.7
+--- !u!23 &1142974201 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4389739466742375734, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
 --- !u!146 &1207636691 stripped
 WheelCollider:
   m_CorrespondingSourceObject: {fileID: 2013571957, guid: 004181020e627b544924ec3a054655e7,
@@ -654,6 +684,21 @@ PrefabInstance:
       propertyPath: gearText
       value: 
       objectReference: {fileID: 1055627317}
+    - target: {fileID: 2428593414203279037, guid: 004181020e627b544924ec3a054655e7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5217623736368276049, guid: 004181020e627b544924ec3a054655e7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5797814438016881954, guid: 004181020e627b544924ec3a054655e7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6745009435567114478, guid: 004181020e627b544924ec3a054655e7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -716,6 +761,42 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 004181020e627b544924ec3a054655e7, type: 3}
+--- !u!114 &1792892894848930668 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 615686616, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e967daaade90c34689dd810b17362ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!23 &1792892894848930669 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7508847148102709473, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1792892894848930670 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4024545042535037394, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1792892894848930671 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4759763559907123964, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1792892894848930672 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8884894495510319400, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 1792892894848930667}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2186847438327720478
 PrefabInstance:
   m_ObjectHideFlags: 0

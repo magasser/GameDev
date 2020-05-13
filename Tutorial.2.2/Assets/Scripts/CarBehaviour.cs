@@ -101,8 +101,6 @@ public class CarBehaviour : MonoBehaviour
                                               centerOfMass.localPosition.y,
                                               centerOfMass.localPosition.z);      
 
-        SetFriction(forwardFriction, sidewaysFriction);
-
         // Configure AudioSource component by program
         _engineAudioSource = gameObject.AddComponent<AudioSource>();
         _engineAudioSource.clip = engineSingleRPMSoundClip;
@@ -311,15 +309,17 @@ public class CarBehaviour : MonoBehaviour
         wheelFR.motorTorque = amount;
     }
 
-    void SetFriction(float forewardFriction, float sidewaysFriction)
+    public void SetFriction(float forwardFriction, float sidewaysFriction)
     {
+        Debug.Log("set fric 2");
         WheelFrictionCurve f_fwWFC = wheelFL.forwardFriction;
         WheelFrictionCurve f_swWFC = wheelFL.sidewaysFriction;
-        f_fwWFC.stiffness = forewardFriction;
+        f_fwWFC.stiffness = forwardFriction;
         f_swWFC.stiffness = sidewaysFriction;
         wheelFL.forwardFriction = f_fwWFC;
         wheelFL.sidewaysFriction = f_swWFC;
         wheelFR.forwardFriction = f_fwWFC;
+        wheelFR.sidewaysFriction = f_fwWFC;
         wheelRL.forwardFriction = f_fwWFC;
         wheelRL.sidewaysFriction = f_swWFC;
         wheelRR.forwardFriction = f_fwWFC;
