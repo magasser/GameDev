@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Prefs
+public struct Prefs
 {
     public float suspensionDistance;
     public int spring;

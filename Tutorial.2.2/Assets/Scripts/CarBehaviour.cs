@@ -71,10 +71,38 @@ public class CarBehaviour : NetworkBehaviour
 
     public float fullBrakeTorque = 5000;
     public AudioClip brakeAudioClip;
+    [SyncVar]
     private bool _doSkidmarking;
     private bool _carIsNotOnSand;
     private AudioSource _brakeAudioSource;
     private bool _isInitialized = false;
+    [SyncVar(hook = "OnPrefsChanged")]
+    private Prefs _prefs;
+    public MeshRenderer bodyBuggy;
+    public MeshRenderer canisters;
+    public MeshRenderer cannon;
+    public MeshRenderer rocketL;
+    public MeshRenderer rocketR;
+    public CarBehaviour carBehaviour;
+
+
+    ////////////////////////////
+    // Network Syncronisation //
+    ////////////////////////////
+    // Command functions all called on clients and executed on the server
+    [Command] void CmdSetMotorTorque(float amount) { RpcSetMotorTorque(amount); }
+    [Command] void CmdSetBrakeTorque(float amount) { RpcSetBrakeTorque(amount); }
+    [Command] void CmdSetSteerAngle(float angle) { RpcSetSteerAngle(angle); }
+    [Command] void CmdSetBrakeSound(bool doSound) { RpcSetBrakeSound(doSound); }
+    [Command] void CmdSetRPMEffects(float rpm) { RpcSetRPMEffects(rpm); }
+    [Command] void CmdSyncSkidmarks(bool value) { _doSkidmarking = value; }
+    [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs;}
+    // Remote Procedure calls are called on the server and executed on the clients
+    [ClientRpc] void RpcSetMotorTorque(float amount) { if (!isLocalPlayer) SetMotorTorque(amount); }
+    [ClientRpc] void RpcSetBrakeTorque(float amount) { if (!isLocalPlayer) SetBrakeTorque(amount); }
+    [ClientRpc] void RpcSetSteerAngle(float angle) { if (!isLocalPlayer) SetSteerAngle(angle); }
+    [ClientRpc] void RpcSetBrakeSound(bool doSound) { if (!isLocalPlayer) SetBrakeSound(doSound); }
+    [ClientRpc] void RpcSetRPMEffects(float rpm) { if (!isLocalPlayer) SetRPMEffects(rpm); }
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -132,6 +160,7 @@ public class CarBehaviour : NetworkBehaviour
         _brakeAudioSource.volume = 0.7f;
         _brakeAudioSource.playOnAwake = false;
         _isInitialized = true;
+        ReapplyPrefs();
 
 
     }
@@ -214,7 +243,9 @@ public class CarBehaviour : NetworkBehaviour
         _doSkidmarking = _carIsNotOnSand && (doFullBrake || carIsSliding) && _currentSpeedKMH > 20f;
 
         SetBrakeSound(_doSkidmarking);
+        CmdSetBrakeSound(_doSkidmarking);
         SetSkidmarking(_doSkidmarking);
+        CmdSyncSkidmarks(_doSkidmarking);
 
         if (doBraking || doFullBrake)
         {
@@ -223,7 +254,9 @@ public class CarBehaviour : NetworkBehaviour
             {
                 bool doSound = doFullBrake && _currentSpeedKMH > 5.0f && _carIsNotOnSand;
                 SetBrakeSound(doSound);
+                CmdSetBrakeSound(doSound);
                 SetBrakeTorque(fullBrakeTorque);
+                CmdSetBrakeTorque(fullBrakeTorque);
             }
             else
             {
@@ -244,10 +277,12 @@ public class CarBehaviour : NetworkBehaviour
             }
 
             SetMotorTorque(0);
+            CmdSetMotorTorque(0);
         }
         else
         {
             SetBrakeTorque(0);
+            CmdSetBrakeTorque(0);
             float torque = _maxTorque - (_currentGear * _torqueReduction);
 
             if (thrustEnabled)
@@ -255,14 +290,17 @@ public class CarBehaviour : NetworkBehaviour
                 if (velocityIsForeward && _currentSpeedKMH < _maxSpeedKMH)
                 {
                     SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                    CmdSetMotorTorque(torque * Input.GetAxis("Vertical"));
                 }
                 else if (!velocityIsForeward && _currentSpeedKMH < _maxSpeedBackwardKMH)
                 {
                     SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                    CmdSetMotorTorque(torque * Input.GetAxis("Vertical"));
                 }
                 else
                 {
                     SetMotorTorque(0);
+                    CmdSetMotorTorque(0);
                 }
             }
         }
@@ -271,13 +309,14 @@ public class CarBehaviour : NetworkBehaviour
         float steerAngle = maxSteerAngle * steerReduction * Input.GetAxis("Horizontal");
 
         SetSteerAngle(steerAngle);
+        CmdSetSteerAngle(steerAngle);
 
         int gearNum = 0;
         float engineRPM = kmh2rpm(_currentSpeedKMH, out gearNum, gearType);
         _currentGear = gearNum;
         SetEngineSound(engineRPM);
         SetRPMEffects(engineRPM);
-
+        CmdSetRPMEffects(engineRPM);
     }
 
     // Gets called from network when local player starts
@@ -287,6 +326,11 @@ public class CarBehaviour : NetworkBehaviour
         SmoothFollow cam = Camera.main.gameObject.GetComponent<SmoothFollow>();
         if (cam != null)
             cam.target = transform;
+
+        // Set the prefs locally
+        Prefs prefs = new Prefs();
+        prefs.Load();
+        CmdSyncPrefs(prefs);
     }
 
     void SetMotorTorque(float amount)
@@ -470,5 +514,16 @@ public class CarBehaviour : NetworkBehaviour
     {
         foreach (var wheel in wheelBehaviours)
             wheel.DoSkidmarking(doSkidmarking);
+    }
+
+    void OnPrefsChanged(Prefs prefs)
+    {
+        _prefs = prefs;
+        ReapplyPrefs();
+    }
+    public void ReapplyPrefs()
+    {
+        _prefs.SetAll(
+        ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR, ref bodyBuggy, ref carBehaviour, ref canisters, ref cannon, ref rocketL, ref rocketR);
     }
 }
