@@ -280,6 +280,15 @@ public class CarBehaviour : NetworkBehaviour
 
     }
 
+    // Gets called from network when local player starts
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+        SmoothFollow cam = Camera.main.gameObject.GetComponent<SmoothFollow>();
+        if (cam != null)
+            cam.target = transform;
+    }
+
     void SetMotorTorque(float amount)
     {
         if (!_isInitialized) return;
