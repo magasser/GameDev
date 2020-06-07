@@ -11206,7 +11206,7 @@ PrefabInstance:
     - target: {fileID: -927199367670048503, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}
       propertyPath: m_Name
-      value: Buggy
+      value: BuggyNetwork
       objectReference: {fileID: 0}
     - target: {fileID: -927199367670048503, guid: 136e7c3d2bff7b14181d27cb4f8669b7,
         type: 3}

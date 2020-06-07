@@ -2,14 +2,10 @@
 using System.Collections;
 using TMPro;
 using System;
+using UnityEngine.Networking;
 
-public enum GearType
-{
-    Comfort,
-    Sport
-}
 
-public class CarBehaviour : MonoBehaviour
+public class CarBehaviourNetwork : NetworkBehaviour
 {
     public WheelCollider wheelFL;
     public WheelCollider wheelFR;
@@ -25,7 +21,7 @@ public class CarBehaviour : MonoBehaviour
     public float engineVolume;
     public float maxTachoAngle = 30;
 
-    public bool thrustEnabled;
+    public bool thrustEnabled = true;
 
     public RectTransform speedPointerTransform;
     public TMP_Text speedText;
@@ -50,7 +46,7 @@ public class CarBehaviour : MonoBehaviour
     public ParticleSystem smokeR;
 
     public ParticleSystem dustFL;
-    public ParticleSystem dustFR;
+    public ParticleSystem dustFR; 
     public ParticleSystem dustRL;
     public ParticleSystem dustRR;
 
@@ -70,9 +66,38 @@ public class CarBehaviour : MonoBehaviour
 
     public float fullBrakeTorque = 5000;
     public AudioClip brakeAudioClip;
+    [SyncVar]
     private bool _doSkidmarking;
     private bool _carIsNotOnSand;
     private AudioSource _brakeAudioSource;
+    private bool _isInitialized = false;
+    [SyncVar(hook = "OnPrefsChanged")]
+    private Prefs _prefs;
+    public MeshRenderer bodyBuggy;
+    public MeshRenderer canisters;
+    public MeshRenderer cannon;
+    public MeshRenderer rocketL;
+    public MeshRenderer rocketR;
+    public CarBehaviourNetwork carBehaviour;
+
+
+    ////////////////////////////
+    // Network Syncronisation //
+    ////////////////////////////
+    // Command functions all called on clients and executed on the server
+    [Command] void CmdSetMotorTorque(float amount) { RpcSetMotorTorque(amount); }
+    [Command] void CmdSetBrakeTorque(float amount) { RpcSetBrakeTorque(amount); }
+    [Command] void CmdSetSteerAngle(float angle) { RpcSetSteerAngle(angle); }
+    [Command] void CmdSetBrakeSound(bool doSound) { RpcSetBrakeSound(doSound); }
+    [Command] void CmdSetRPMEffects(float rpm) { RpcSetRPMEffects(rpm); }
+    [Command] void CmdSyncSkidmarks(bool value) { _doSkidmarking = value; }
+    [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs;}
+    // Remote Procedure calls are called on the server and executed on the clients
+    [ClientRpc] void RpcSetMotorTorque(float amount) { if (!isLocalPlayer) SetMotorTorque(amount); }
+    [ClientRpc] void RpcSetBrakeTorque(float amount) { if (!isLocalPlayer) SetBrakeTorque(amount); }
+    [ClientRpc] void RpcSetSteerAngle(float angle) { if (!isLocalPlayer) SetSteerAngle(angle); }
+    [ClientRpc] void RpcSetBrakeSound(bool doSound) { if (!isLocalPlayer) SetBrakeSound(doSound); }
+    [ClientRpc] void RpcSetRPMEffects(float rpm) { if (!isLocalPlayer) SetRPMEffects(rpm); }
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -95,11 +120,11 @@ public class CarBehaviour : MonoBehaviour
 
     void Start()
     {
-
+        
         _rigidBody = GetComponent<Rigidbody>();
         _rigidBody.centerOfMass = new Vector3(centerOfMass.localPosition.x,
                                               centerOfMass.localPosition.y,
-                                              centerOfMass.localPosition.z);
+                                              centerOfMass.localPosition.z);      
 
         // Configure AudioSource component by program
         _engineAudioSource = gameObject.AddComponent<AudioSource>();
@@ -129,11 +154,17 @@ public class CarBehaviour : MonoBehaviour
         _brakeAudioSource.loop = true;
         _brakeAudioSource.volume = 0.7f;
         _brakeAudioSource.playOnAwake = false;
+        _isInitialized = true;
+        ReapplyPrefs();
+
 
     }
 
     void FixedUpdate()
     {
+        if (!isLocalPlayer)
+            return;
+
         // Set torque and speed values according to gear type
         switch (gearType)
         {
@@ -188,13 +219,13 @@ public class CarBehaviour : MonoBehaviour
             _canChangeGearType = true;
         }
 
-        if (changeGearType && _canChangeGearType)
+        if(changeGearType && _canChangeGearType)
         {
-            if (gearType == GearType.Comfort)
+            if(gearType == GearType.Comfort)
             {
                 gearType = GearType.Sport;
-            }
-            else if (gearType == GearType.Sport)
+            } 
+            else if(gearType == GearType.Sport)
             {
                 gearType = GearType.Comfort;
             }
@@ -207,17 +238,20 @@ public class CarBehaviour : MonoBehaviour
         _doSkidmarking = _carIsNotOnSand && (doFullBrake || carIsSliding) && _currentSpeedKMH > 20f;
 
         SetBrakeSound(_doSkidmarking);
+        CmdSetBrakeSound(_doSkidmarking);
         SetSkidmarking(_doSkidmarking);
+        CmdSyncSkidmarks(_doSkidmarking);
 
         if (doBraking || doFullBrake)
         {
 
             if (doFullBrake)
             {
-                wheelFL.brakeTorque = fullBrakeTorque;
-                wheelFR.brakeTorque = fullBrakeTorque;
-                wheelRL.brakeTorque = fullBrakeTorque;
-                wheelRR.brakeTorque = fullBrakeTorque;
+                bool doSound = doFullBrake && _currentSpeedKMH > 5.0f && _carIsNotOnSand;
+                SetBrakeSound(doSound);
+                CmdSetBrakeSound(doSound);
+                SetBrakeTorque(fullBrakeTorque);
+                CmdSetBrakeTorque(fullBrakeTorque);
             }
             else
             {
@@ -237,15 +271,13 @@ public class CarBehaviour : MonoBehaviour
                 }
             }
 
-            wheelFL.motorTorque = 0;
-            wheelFR.motorTorque = 0;
+            SetMotorTorque(0);
+            CmdSetMotorTorque(0);
         }
         else
         {
-            wheelFL.brakeTorque = 0;
-            wheelFR.brakeTorque = 0;
-            wheelRL.brakeTorque = 0;
-            wheelRR.brakeTorque = 0;
+            SetBrakeTorque(0);
+            CmdSetBrakeTorque(0);
             float torque = _maxTorque - (_currentGear * _torqueReduction);
 
             if (thrustEnabled)
@@ -253,14 +285,17 @@ public class CarBehaviour : MonoBehaviour
                 if (velocityIsForeward && _currentSpeedKMH < _maxSpeedKMH)
                 {
                     SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                    CmdSetMotorTorque(torque * Input.GetAxis("Vertical"));
                 }
                 else if (!velocityIsForeward && _currentSpeedKMH < _maxSpeedBackwardKMH)
                 {
                     SetMotorTorque(torque * Input.GetAxis("Vertical"));
+                    CmdSetMotorTorque(torque * Input.GetAxis("Vertical"));
                 }
                 else
                 {
                     SetMotorTorque(0);
+                    CmdSetMotorTorque(0);
                 }
             }
         }
@@ -269,13 +304,67 @@ public class CarBehaviour : MonoBehaviour
         float steerAngle = maxSteerAngle * steerReduction * Input.GetAxis("Horizontal");
 
         SetSteerAngle(steerAngle);
+        CmdSetSteerAngle(steerAngle);
 
         int gearNum = 0;
         float engineRPM = kmh2rpm(_currentSpeedKMH, out gearNum, gearType);
         _currentGear = gearNum;
         SetEngineSound(engineRPM);
+        SetRPMEffects(engineRPM);
+        CmdSetRPMEffects(engineRPM);
+    }
 
+    // Gets called from network when local player starts
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+        SmoothFollow cam = Camera.main.gameObject.GetComponent<SmoothFollow>();
+        if (cam != null)
+            cam.target = transform;
+
+        // Set the prefs locally
+        Prefs prefs = new Prefs();
+        prefs.Load();
+        CmdSyncPrefs(prefs);
+    }
+
+    void SetMotorTorque(float amount)
+    {
+        if (!_isInitialized) return;
+        wheelFL.motorTorque = amount;
+        wheelFR.motorTorque = amount;
+    }
+    void SetBrakeTorque(float amount)
+    {
+        if (!_isInitialized) return;
+        wheelFL.brakeTorque = amount;
+        wheelFR.brakeTorque = amount;
+        wheelRL.brakeTorque = amount;
+        wheelRR.brakeTorque = amount;
+    }
+    void SetSteerAngle(float angle)
+    {
+        if (!_isInitialized) return;
+        wheelFL.steerAngle = angle;
+        wheelFR.steerAngle = angle;
+    }
+    void SetBrakeSound(bool doSound)
+    {
+        if (!_isInitialized) return;
+        if (doSound)
+        {
+            _brakeAudioSource.volume = _currentSpeedKMH / 100.0f;
+            _brakeAudioSource.Play();
+        }
+        else
+            _brakeAudioSource.Stop();
+    }
+
+    void SetRPMEffects(float engineRPM)
+    {
+        if (!_isInitialized) return;
         SetParticleSystems(engineRPM);
+        SetEngineSound(engineRPM);
     }
 
     void SetParticleSystems(float engineRMP)
@@ -297,18 +386,6 @@ public class CarBehaviour : MonoBehaviour
         _dustRREmission.rateOverTime = new ParticleSystem.MinMaxCurve(dustRate);
     }
 
-    void SetSteerAngle(float angle)
-    {
-        wheelFL.steerAngle = angle;
-        wheelFR.steerAngle = angle;
-    }
-
-    void SetMotorTorque(float amount)
-    {
-        wheelFL.motorTorque = amount;
-        wheelFR.motorTorque = amount;
-    }
-
     public void SetFriction(float forwardFriction, float sidewaysFriction)
     {
         Debug.Log("set fric 2");
@@ -328,6 +405,9 @@ public class CarBehaviour : MonoBehaviour
 
     void OnGUI()
     {
+        if (!isLocalPlayer)
+            return;
+
         // Speedpointer rotation
         double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTachoAngle);
         speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
@@ -424,21 +504,21 @@ public class CarBehaviour : MonoBehaviour
         return wheelHit;
     }
 
-    void SetBrakeSound(bool doBrakeSound)
-    {
-        if (doBrakeSound)
-        {
-            _brakeAudioSource.volume = _currentSpeedKMH / 100.0f;
-            _brakeAudioSource.Play();
-        }
-        else
-            _brakeAudioSource.Stop();
-    }
-
     // Turns skidmarking on or off on all wheels
     void SetSkidmarking(bool doSkidmarking)
     {
         foreach (var wheel in wheelBehaviours)
             wheel.DoSkidmarking(doSkidmarking);
+    }
+
+    void OnPrefsChanged(Prefs prefs)
+    {
+        _prefs = prefs;
+        ReapplyPrefs();
+    }
+    public void ReapplyPrefs()
+    {
+        _prefs.SetAll(
+        ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR, ref bodyBuggy, ref carBehaviour, ref canisters, ref cannon, ref rocketL, ref rocketR);
     }
 }

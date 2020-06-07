@@ -73,6 +73,19 @@ public struct Prefs
         SetVisibleComponents(ref canisters, ref cannon, ref rocketL, ref rocketR);
     }
 
+    public void SetAll(ref WheelCollider wheelFL, ref WheelCollider wheelFR,
+        ref WheelCollider wheelRL, ref WheelCollider wheelRR, ref MeshRenderer mr,
+        ref CarBehaviourNetwork cb, ref MeshRenderer canisters, ref MeshRenderer cannon,
+        ref MeshRenderer rocketL, ref MeshRenderer rocketR)
+    {
+        SetMaterialColor(ref mr);
+        SetWheelColliderSuspension(ref wheelFL, ref wheelFR,
+            ref wheelRL, ref wheelRR);
+        SetFriction(ref wheelFL, ref wheelFR,
+            ref wheelRL, ref wheelRR, ref cb);
+        SetVisibleComponents(ref canisters, ref cannon, ref rocketL, ref rocketR);
+    }
+
     public void SetMaterialColor(ref MeshRenderer mr)
     {
         mr.materials[0].SetColor("_Color", Color.HSVToRGB(hue, saturation, value, false));
@@ -97,6 +110,11 @@ public struct Prefs
     }
 
     public void SetFriction(ref WheelCollider wheelFL, ref WheelCollider wheelFR, ref WheelCollider wheelRL, ref WheelCollider wheelRR, ref CarBehaviour cb)
+    {
+        cb.SetFriction(forwardFriction, sidewaysFriction);
+    }
+
+    public void SetFriction(ref WheelCollider wheelFL, ref WheelCollider wheelFR, ref WheelCollider wheelRL, ref WheelCollider wheelRR, ref CarBehaviourNetwork cb)
     {
         cb.SetFriction(forwardFriction, sidewaysFriction);
     }
