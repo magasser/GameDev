@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 542768871}
   - component: {fileID: 542768872}
   m_Layer: 0
-  m_Name: SpawnPoint
+  m_Name: SpawnPoint4
   m_TagString: Untagged
   m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -282,7 +282,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &542768872
 MonoBehaviour:
@@ -399,7 +399,7 @@ GameObject:
   - component: {fileID: 765051010}
   - component: {fileID: 765051011}
   m_Layer: 0
-  m_Name: SpawnPoint (1)
+  m_Name: SpawnPoint1
   m_TagString: Untagged
   m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -417,7 +417,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &765051011
 MonoBehaviour:
@@ -740,7 +740,7 @@ GameObject:
   - component: {fileID: 1146790271}
   - component: {fileID: 1146790272}
   m_Layer: 0
-  m_Name: SpawnPoint (3)
+  m_Name: SpawnPoint3
   m_TagString: Untagged
   m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -758,7 +758,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1146790272
 MonoBehaviour:
@@ -795,7 +795,7 @@ GameObject:
   - component: {fileID: 1354626618}
   - component: {fileID: 1354626619}
   m_Layer: 0
-  m_Name: SpawnPoint (2)
+  m_Name: SpawnPoint2
   m_TagString: Untagged
   m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -813,7 +813,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1354626619
 MonoBehaviour:

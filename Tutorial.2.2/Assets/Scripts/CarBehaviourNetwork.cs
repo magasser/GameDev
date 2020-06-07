@@ -4,7 +4,6 @@ using TMPro;
 using System;
 using UnityEngine.Networking;
 
-
 public class CarBehaviourNetwork : NetworkBehaviour
 {
     public WheelCollider wheelFL;
@@ -92,14 +91,24 @@ public class CarBehaviourNetwork : NetworkBehaviour
     [Command] void CmdSetSteerAngle(float angle) { RpcSetSteerAngle(angle); }
     [Command] void CmdSetBrakeSound(bool doSound) { RpcSetBrakeSound(doSound); }
     [Command] void CmdSetRPMEffects(float rpm) { RpcSetRPMEffects(rpm); }
-    [Command] void CmdSyncSkidmarks(bool value) { _doSkidmarking = value; }
+    [Command] void CmdSyncSkidmarks(bool value) {
+        RpcSetSkidmarks(value);
+    }
     [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs;}
     // Remote Procedure calls are called on the server and executed on the clients
     [ClientRpc] void RpcSetMotorTorque(float amount) { if (!isLocalPlayer) SetMotorTorque(amount); }
     [ClientRpc] void RpcSetBrakeTorque(float amount) { if (!isLocalPlayer) SetBrakeTorque(amount); }
     [ClientRpc] void RpcSetSteerAngle(float angle) { if (!isLocalPlayer) SetSteerAngle(angle); }
-    [ClientRpc] void RpcSetBrakeSound(bool doSound) { if (!isLocalPlayer) SetBrakeSound(doSound); }
+    [ClientRpc] void RpcSetBrakeSound(bool doSound) { if (!isLocalPlayer)
+        {
+            SetBrakeSound(doSound);
+            Debug.Log("Playing brake sound: "+ doSound);
+        }
+    }
     [ClientRpc] void RpcSetRPMEffects(float rpm) { if (!isLocalPlayer) SetRPMEffects(rpm); }
+    [ClientRpc] void RpcSetSkidmarks(bool value) { if (!isLocalPlayer)
+            SetSkidmarking(value);
+    }
 
     private Gear[] sportGears = new Gear[]
                 {
@@ -243,8 +252,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
         bool doFullBrake = Input.GetKey("space");
         _doSkidmarking = _carIsNotOnSand && (doFullBrake || carIsSliding) && _currentSpeedKMH > 20f;
 
-        SetBrakeSound(_doSkidmarking);
-        CmdSetBrakeSound(_doSkidmarking);
+//      SetBrakeSound(_doSkidmarking);
+//      CmdSetBrakeSound(_doSkidmarking);
         SetSkidmarking(_doSkidmarking);
         CmdSyncSkidmarks(_doSkidmarking);
 
@@ -394,7 +403,6 @@ public class CarBehaviourNetwork : NetworkBehaviour
 
     public void SetFriction(float forwardFriction, float sidewaysFriction)
     {
-        Debug.Log("set fric 2");
         WheelFrictionCurve f_fwWFC = wheelFL.forwardFriction;
         WheelFrictionCurve f_swWFC = wheelFL.sidewaysFriction;
         f_fwWFC.stiffness = forwardFriction;
