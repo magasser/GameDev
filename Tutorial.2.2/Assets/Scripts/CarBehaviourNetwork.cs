@@ -66,8 +66,10 @@ public class CarBehaviourNetwork : NetworkBehaviour
 
     public float fullBrakeTorque = 5000;
     public AudioClip brakeAudioClip;
+
     [SyncVar]
     private bool _doSkidmarking;
+
     private bool _carIsNotOnSand;
     private AudioSource _brakeAudioSource;
     private bool _isInitialized = false;
@@ -154,7 +156,11 @@ public class CarBehaviourNetwork : NetworkBehaviour
         _brakeAudioSource.loop = true;
         _brakeAudioSource.volume = 0.7f;
         _brakeAudioSource.playOnAwake = false;
-        _isInitialized = true;
+        speedPointerTransform = GameObject.Find("SpeedPointer").GetComponent<RectTransform>();
+        speedText = GameObject.Find("SpeedText").GetComponent<TMPro.TMP_Text>();
+        gearText = GameObject.Find("GearText").GetComponent<TMPro.TMP_Text>();
+
+    _isInitialized = true;
         ReapplyPrefs();
 
 
