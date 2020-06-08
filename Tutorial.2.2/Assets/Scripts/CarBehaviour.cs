@@ -311,7 +311,6 @@ public class CarBehaviour : MonoBehaviour
 
     public void SetFriction(float forwardFriction, float sidewaysFriction)
     {
-        Debug.Log("set fric 2");
         WheelFrictionCurve f_fwWFC = wheelFL.forwardFriction;
         WheelFrictionCurve f_swWFC = wheelFL.sidewaysFriction;
         f_fwWFC.stiffness = forwardFriction;
@@ -329,11 +328,17 @@ public class CarBehaviour : MonoBehaviour
     void OnGUI()
     {
         // Speedpointer rotation
-        double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTachoAngle);
-        speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
+        if(speedPointerTransform != null)
+        {
+            double degAroundZ = Math.Max(Math.Ceiling(326f - (_currentSpeedKMH * 292 / 140)), maxTachoAngle);
+            speedPointerTransform.rotation = Quaternion.Euler(0, 0, (float)degAroundZ);
+        }
+
         // SpeedText show current KMH
-        speedText.text = _currentSpeedKMH.ToString("0");
-        gearText.text = _currentGear.ToString("0");
+        if (speedText != null)
+            speedText.text = _currentSpeedKMH.ToString("0");
+        if (gearText != null)
+            gearText.text = _currentGear.ToString("0");
     }
 
     class Gear

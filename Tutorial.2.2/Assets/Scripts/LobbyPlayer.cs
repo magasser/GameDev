@@ -21,14 +21,14 @@ public class LobbyPlayer : NetworkLobbyPlayer
 
     public override void OnClientEnterLobby()
     {
-        Debug.Log("OnClientEnterLobby");
+        //Debug.Log("OnClientEnterLobby");
         base.OnClientEnterLobby();
         LobbyManager.instance.playersListBehaviour.AddPlayer(this);
     }
 
     public override void OnStartLocalPlayer()
     {
-        Debug.Log("OnStartLocalPlayer");
+        //Debug.Log("OnStartLocalPlayer");
         nameLabel.fontStyle = FontStyle.Bold;
         string name = LobbyManager.instance.playerNameInput.text;
 
@@ -50,7 +50,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 
     public void OnNameChanged(string newName)
     {
-        Debug.Log("OnNameChanged: " + newName);
+        //Debug.Log("OnNameChanged: " + newName);
         playerName = newName;
         nameLabel.text = playerName;
     }
@@ -58,7 +58,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
     [Command]
     public void CmdSetName(string newName)
     {
-        Debug.Log("CmdSetName");
+        //Debug.Log("CmdSetName");
         playerName = newName;
     }
 }

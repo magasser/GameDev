@@ -48,7 +48,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnCreateHostButtonClick()
     {
-        Debug.Log("OnCreateHostButtonClick");
+        //Debug.Log("OnCreateHostButtonClick");
         if (StartHost()!= null)
         {
             _isServer = true;
@@ -62,7 +62,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnCreateClientButtonClick()
     {
-        Debug.Log("OnCreateClientButtonClick");
+        //Debug.Log("OnCreateClientButtonClick");
         networkAddress = remoteIpInput.text;
         StartClient();
         ChangeTo(lobbyRect);
@@ -75,7 +75,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnStartButtonClicked()
     {
-        Debug.Log("OnStartButtonClicked");
+        //Debug.Log("OnStartButtonClicked");
         ServerChangeScene(playScene);
         startButton.gameObject.SetActive(false);
         toggleLobbyButton.gameObject.SetActive(true);
@@ -84,7 +84,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnStopButtonClicked()
     {
-        Debug.Log("OnStopButtonClicked");
+        //Debug.Log("OnStopButtonClicked");
         if(_isServer)
             StopHost();
         else 
@@ -96,7 +96,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnToggleLobbyButtuonClicked()
     {
-        Debug.Log("OnToggleLobbyButtuonClicked");
+        //Debug.Log("OnToggleLobbyButtuonClicked");
         _showLobbyDuringGame = !_showLobbyDuringGame;
         ShowLobby(_showLobbyDuringGame);
     }
@@ -128,7 +128,7 @@ public class LobbyManager : NetworkLobbyManager
     // Gets called when a client has successfully connected to the server
     public override void OnClientConnect(NetworkConnection conn)
     {
-        Debug.Log("OnClientConnect");
+        //Debug.Log("OnClientConnect");
         base.OnClientConnect(conn);
         ChangeTo(lobbyRect);
         lobbyTitleText.text = "Lobby";
@@ -138,7 +138,7 @@ public class LobbyManager : NetworkLobbyManager
     // Gets called when the client has changed into the game scene
     public override void OnLobbyClientSceneChanged(NetworkConnection conn)
     {
-        Debug.Log("OnLobbyClientSceneChanged");
+        //Debug.Log("OnLobbyClientSceneChanged");
         base.OnLobbyClientSceneChanged(conn);
         ShowLobby(false);
         toggleLobbyButton.gameObject.SetActive(true);
@@ -147,7 +147,7 @@ public class LobbyManager : NetworkLobbyManager
     // Gets called when a client disconnected
     public override void OnClientDisconnect(NetworkConnection conn)
     {
-        Debug.Log("OnClientDisconnect");
+        //Debug.Log("OnClientDisconnect");
         base.OnClientDisconnect(conn);
         StopClient();
         ChangeTo(hostAndJoinRect);
@@ -157,7 +157,7 @@ public class LobbyManager : NetworkLobbyManager
     // Gets called when the host has stopped
     public override void OnStopHost()
     {
-        Debug.Log("OnStopHost");
+        //Debug.Log("OnStopHost");
         base.OnStopHost();
         startButton.gameObject.SetActive(false);
     }

@@ -102,7 +102,7 @@ public class CarBehaviourNetwork : NetworkBehaviour
     [ClientRpc] void RpcSetBrakeSound(bool doSound) { if (!isLocalPlayer)
         {
             SetBrakeSound(doSound);
-            Debug.Log("Playing brake sound: "+ doSound);
+            //Debug.Log("Playing brake sound: "+ doSound);
         }
     }
     [ClientRpc] void RpcSetRPMEffects(float rpm) { if (!isLocalPlayer) SetRPMEffects(rpm); }

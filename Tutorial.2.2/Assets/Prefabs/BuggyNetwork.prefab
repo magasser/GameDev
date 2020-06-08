@@ -10124,7 +10124,7 @@ MonoBehaviour:
   centerOfMass: {fileID: 1369975442}
   engineVolume: 0.1
   maxTachoAngle: 30
-  thrustEnabled: 1
+  thrustEnabled: 0
   speedPointerTransform: {fileID: 0}
   speedText: {fileID: 0}
   gearText: {fileID: 0}

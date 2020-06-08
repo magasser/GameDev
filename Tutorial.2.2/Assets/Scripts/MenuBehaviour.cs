@@ -54,7 +54,10 @@ public class MenuBehaviour : MonoBehaviour
     {
         _prefs = new Prefs();
         _prefs.Load();
-        _prefs.SetAll(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR, ref meshRenderer, ref carBehaviour, ref canisters, ref cannon, ref rocketL, ref rocketR);
+        if (meshRenderer != null)
+        {
+            _prefs.SetAll(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR, ref meshRenderer, ref carBehaviour, ref canisters, ref cannon, ref rocketL, ref rocketR);
+        }
 
         if (SceneManager.GetActiveScene().name == "SceneMenu")
         {
