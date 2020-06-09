@@ -39,14 +39,14 @@ public class LobbyManager : NetworkLobbyManager
         }
         _instance = this;
         _currentPanel = hostAndJoinRect;
-        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+        /*IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (IPAddress ip in host.AddressList)
         {
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
                 remoteIpInput.text = ip.ToString();
             }
-        }
+        }*/
     }
 
 

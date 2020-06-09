@@ -81,7 +81,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
     public MeshRenderer rocketL;
     public MeshRenderer rocketR;
     public Collider collider;
-    public CarBehaviourNetwork carBehaviour;
+    private CarBehaviourNetwork carBehaviour;
+    public TimingNetworkBehaviour timingNetworkBehaviour;
 
     public TMP_Text playerName;
 
@@ -100,7 +101,25 @@ public class CarBehaviourNetwork : NetworkBehaviour
     }
     [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs; }
     [Command] public void CmdActive(bool value) { RpcActive(value); }
+
+    [Command]
+    public void CmdChangeText(string value)
+    {
+        RpcChangeText(value);
+    }
+
+
     // Remote Procedure calls are called on the server and executed on the clients
+    [ClientRpc]
+    void RpcChangeText(string value)
+    {
+        if (timingNetworkBehaviour == null)
+        {
+            timingNetworkBehaviour = GameObject.Find("GateCollider").GetComponent<TimingNetworkBehaviour>();
+        }
+        if (!isLocalPlayer)
+            timingNetworkBehaviour.SetRankingsText(value);
+    }
     [ClientRpc] void RpcSetMotorTorque(float amount) { if (!isLocalPlayer) SetMotorTorque(amount); }
     [ClientRpc] void RpcSetBrakeTorque(float amount) { if (!isLocalPlayer) SetBrakeTorque(amount); }
     [ClientRpc] void RpcSetSteerAngle(float angle) { if (!isLocalPlayer) SetSteerAngle(angle); }

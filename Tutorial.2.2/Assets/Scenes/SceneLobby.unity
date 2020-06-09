@@ -163,7 +163,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -302.6, y: 78.5}
+  m_AnchoredPosition: {x: -302.6, y: 10}
   m_SizeDelta: {x: 96.3, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &149528144
@@ -855,7 +855,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_NetworkPort: 7777
-  m_ServerBindToIP: 1
+  m_ServerBindToIP: 0
   m_ServerBindAddress: 192.168.1.121
   m_NetworkAddress: localhost
   m_DontDestroyOnLoad: 1

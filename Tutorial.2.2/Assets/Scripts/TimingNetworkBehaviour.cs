@@ -14,7 +14,6 @@ public class TimingNetworkBehaviour : NetworkBehaviour
     private int _countdown;
     [SyncVar]
     private float _pastTime = 0;
-    [SyncVar(hook = "OnTextChange")]
     private string rankings = "";
     private float localtime = 0;
     private CarBehaviourNetwork _carScript = null;
@@ -106,21 +105,16 @@ public class TimingNetworkBehaviour : NetworkBehaviour
     // FixedUpdate is increment & display the server time
     void FixedUpdate()
     {
-        if (_carScript == null && ClientScene.localPlayers[0].gameObject.GetComponent<NetworkIdentity>().isServer) return;
+        if (_carScript == null && ClientScene.localPlayers[0].gameObject.GetComponent<NetworkIdentity>().isServer || !_isStarted ) return;
         _pastTime += Time.deltaTime;
         if (!_isStarted || _isFinished) return;
         serverTime.text = _pastTime.ToString("0.0");
     }
 
-    void OnTextChange(string value)
+    public void SetRankingsText(string value)
     {
-        if (ranking.gameObject.active)
-        {
-            rankings = value;
-            ranking.text = value;
-            Debug.Log(rankings);
-            Debug.Log(ranking.text);
-        }
+        rankings = value;
+        ranking.text = value;
     }
 
     // Trigger event handler when the car passes the gate
@@ -135,20 +129,9 @@ public class TimingNetworkBehaviour : NetworkBehaviour
             _carScript.thrustEnabled = false;
             ranking.gameObject.active = true;
             _carScript.CmdActive(false);
-            CmdChangeText(LobbyManager.instance.playersListBehaviour.LobbyPlayerList[ClientScene.localPlayers[0].playerControllerId].playerName + ": " + localtime.ToString("0.0") + "\n");
+            string value = rankings + LobbyManager.instance.playersListBehaviour.LobbyPlayerList[ClientScene.localPlayers[0].playerControllerId].playerName + ": " + localtime.ToString("0.0") + "\n";
+            SetRankingsText(value);
+            _carScript.CmdChangeText(value);
         }
-    }
-
-    [Command]
-    void CmdChangeText(string value)
-    {
-        RpcChangeText(rankings + value);
-    }
-
-    [ClientRpc]
-    void RpcChangeText(string value)
-    {
-        if (!isLocalPlayer)
-            rankings = value;
     }
 }
