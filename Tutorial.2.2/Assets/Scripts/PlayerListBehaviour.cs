@@ -13,9 +13,30 @@ public class PlayerListBehaviour : MonoBehaviour
 
     public List<LobbyPlayer> LobbyPlayerList { get { return _lobbyPlayerList; } }
 
+    public List<Transform> spawnPoints;
+    private Stack<Transform> _spawnPoints = new Stack<Transform>();
+    private List<Transform> _usedSpawnPoints = new List<Transform>();
+
     public void OnEnable()
     {
         _layout = playersRect.GetComponent<VerticalLayoutGroup>();
+    }
+
+    void Start()
+    {
+        _spawnPoints.Clear();
+        spawnPoints.Reverse();
+        foreach (var sp in spawnPoints)
+        {
+            _spawnPoints.Push(sp);
+        }
+    }
+
+    public Transform GetSpawnPoint()
+    {
+        Transform spawnPoint = _spawnPoints.Pop();
+        _usedSpawnPoints.Add(spawnPoint);
+        return spawnPoint;
     }
 
     void Update()
@@ -33,5 +54,14 @@ public class PlayerListBehaviour : MonoBehaviour
         RectTransform trfrm = lobbyPlayer.gameObject.GetComponent<RectTransform>();
         trfrm.SetParent(playersRect, false);
         _lobbyPlayerList.Add(lobbyPlayer);
+    }
+
+    public void RemovePlayer(LobbyPlayer lobbyPlayer)
+    {
+        lobbyPlayer.gameObject.GetComponent<RectTransform>().SetParent(null, false);
+        Transform spawnPoint = _usedSpawnPoints[_lobbyPlayerList.IndexOf(lobbyPlayer)];
+        _usedSpawnPoints.Remove(spawnPoint);
+        _spawnPoints.Push(spawnPoint);
+        _lobbyPlayerList.Remove(lobbyPlayer);
     }
 }

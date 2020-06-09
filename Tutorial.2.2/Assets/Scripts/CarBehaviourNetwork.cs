@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using System;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class CarBehaviourNetwork : NetworkBehaviour
 {
@@ -80,6 +81,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
     public MeshRenderer rocketL;
     public MeshRenderer rocketR;
     public CarBehaviourNetwork carBehaviour;
+
+    public TMP_Text playerName;
 
 
     ////////////////////////////
@@ -165,9 +168,13 @@ public class CarBehaviourNetwork : NetworkBehaviour
         _brakeAudioSource.loop = true;
         _brakeAudioSource.volume = 0.7f;
         _brakeAudioSource.playOnAwake = false;
-        speedPointerTransform = GameObject.Find("SpeedPointer").GetComponent<RectTransform>();
-        speedText = GameObject.Find("SpeedText").GetComponent<TMPro.TMP_Text>();
-        gearText = GameObject.Find("GearText").GetComponent<TMPro.TMP_Text>();
+
+        if (SceneManager.GetActiveScene().name != "SceneLobby")
+        {
+            speedPointerTransform = GameObject.Find("SpeedPointer").GetComponent<RectTransform>();
+            speedText = GameObject.Find("SpeedText").GetComponent<TMPro.TMP_Text>();
+            gearText = GameObject.Find("GearText").GetComponent<TMPro.TMP_Text>();
+        }
 
     _isInitialized = true;
         ReapplyPrefs();
@@ -327,6 +334,9 @@ public class CarBehaviourNetwork : NetworkBehaviour
         SetEngineSound(engineRPM);
         SetRPMEffects(engineRPM);
         CmdSetRPMEffects(engineRPM);
+
+        playerName.transform.LookAt(Camera.main.transform);
+        playerName.transform.Rotate(0,180,0);
     }
 
     // Gets called from network when local player starts
@@ -428,6 +438,9 @@ public class CarBehaviourNetwork : NetworkBehaviour
         // SpeedText show current KMH
         speedText.text = _currentSpeedKMH.ToString("0");
         gearText.text = _currentGear.ToString("0");
+
+        playerName.text = LobbyManager.instance.playersListBehaviour
+            .LobbyPlayerList[playerControllerId].playerName;
     }
 
     class Gear

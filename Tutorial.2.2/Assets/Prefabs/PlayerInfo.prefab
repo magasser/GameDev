@@ -88,6 +88,8 @@ MonoBehaviour:
   ShowLobbyGUI: 1
   kickButton: {fileID: 8230840109354154676}
   nameLabel: {fileID: 1982356853482706955}
+  playerPrefab: {fileID: 7764293171885128445, guid: 004181020e627b544924ec3a054655e7,
+    type: 3}
   playerName: 
 --- !u!114 &2209368063699153317
 MonoBehaviour:
@@ -305,7 +307,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4562270165273385453}
-        m_MethodName: OnClientExitLobby
+        m_MethodName: OnClientKicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

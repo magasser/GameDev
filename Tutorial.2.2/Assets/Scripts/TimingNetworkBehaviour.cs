@@ -95,6 +95,7 @@ public class TimingNetworkBehaviour : NetworkBehaviour
         //playerTime.transform.position = new Vector3(0.093f, 0.37f, 0);
         playerTime.fontSize = (int)(Screen.height / 40.0f);
     }
+
     // FixedUpdate is increment & display the server time
     void FixedUpdate()
     {

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
@@ -6,6 +7,10 @@ public class LobbyPlayer : NetworkLobbyPlayer
 {
     public RectTransform kickButton;
     public Text nameLabel;
+
+    public GameObject playerPrefab;
+
+    private GameObject _playerCar;
 
     [SyncVar(hook = "OnNameChanged")]
     public string playerName;
@@ -28,6 +33,7 @@ public class LobbyPlayer : NetworkLobbyPlayer
 
     public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
         //Debug.Log("OnStartLocalPlayer");
         nameLabel.fontStyle = FontStyle.Bold;
         string name = LobbyManager.instance.playerNameInput.text;
@@ -45,7 +51,20 @@ public class LobbyPlayer : NetworkLobbyPlayer
             }
         }
             
+        CmdSpawnCar();
         CmdSetName(name);
+    }
+
+    [Command]
+    void CmdSpawnCar()
+    {
+        Transform spawnPoint = LobbyManager.instance.playersListBehaviour.GetSpawnPoint();
+        if (spawnPoint != null)
+        {
+            _playerCar = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+            NetworkServer.Spawn(_playerCar);
+        }
+
     }
 
     public void OnNameChanged(string newName)
@@ -53,6 +72,14 @@ public class LobbyPlayer : NetworkLobbyPlayer
         //Debug.Log("OnNameChanged: " + newName);
         playerName = newName;
         nameLabel.text = playerName;
+    }
+
+    public void OnClientKicked()
+    {
+        LobbyManager.instance.playersListBehaviour.RemovePlayer(this);
+        // Remove kicked players car
+        Destroy(_playerCar);
+        this.GetComponent<NetworkIdentity>().connectionToClient.Disconnect();
     }
 
     [Command]

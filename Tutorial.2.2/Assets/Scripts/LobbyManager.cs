@@ -3,8 +3,11 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using UnityEngine.Networking.Types;
 
-public class LobbyManager : NetworkLobbyManager 
+public class LobbyManager : NetworkLobbyManager
 {
     // singleton static instance
     private static LobbyManager _instance = null;
@@ -36,8 +39,14 @@ public class LobbyManager : NetworkLobbyManager
         }
         _instance = this;
         _currentPanel = hostAndJoinRect;
-
-        //remoteIpInput.text = Network.player.ipAddress;
+        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (IPAddress ip in host.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                remoteIpInput.text = ip.ToString();
+            }
+        }
     }
 
 
@@ -48,6 +57,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void OnCreateHostButtonClick()
     {
+        Debug.Log(networkPort);
         //Debug.Log("OnCreateHostButtonClick");
         if (StartHost()!= null)
         {
@@ -118,7 +128,6 @@ public class LobbyManager : NetworkLobbyManager
                                     new Vector3(0, 0, 0) : 
                                     new Vector3(-263, 0, 0);
     }
-
 
 
     ///////////////////////////////
