@@ -10143,6 +10143,7 @@ MonoBehaviour:
   cannon: {fileID: 4759763559907123964}
   rocketL: {fileID: 4024545042535037394}
   rocketR: {fileID: 7508847148102709473}
+  collider: {fileID: 861166862}
   carBehaviour: {fileID: 615686616}
   playerName: {fileID: 2972737650810425155}
 --- !u!114 &874079322
