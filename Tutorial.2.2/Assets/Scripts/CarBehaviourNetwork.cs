@@ -79,6 +79,7 @@ public class CarBehaviourNetwork : NetworkBehaviour
     public MeshRenderer cannon;
     public MeshRenderer rocketL;
     public MeshRenderer rocketR;
+    public Collider collider;
     public CarBehaviourNetwork carBehaviour;
 
 
@@ -94,7 +95,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
     [Command] void CmdSyncSkidmarks(bool value) {
         RpcSetSkidmarks(value);
     }
-    [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs;}
+    [Command] void CmdSyncPrefs(Prefs prefs) { _prefs = prefs; }
+    [Command] public void CmdActive(bool value) { RpcActive(value); }
     // Remote Procedure calls are called on the server and executed on the clients
     [ClientRpc] void RpcSetMotorTorque(float amount) { if (!isLocalPlayer) SetMotorTorque(amount); }
     [ClientRpc] void RpcSetBrakeTorque(float amount) { if (!isLocalPlayer) SetBrakeTorque(amount); }
@@ -106,6 +108,7 @@ public class CarBehaviourNetwork : NetworkBehaviour
         }
     }
     [ClientRpc] void RpcSetRPMEffects(float rpm) { if (!isLocalPlayer) SetRPMEffects(rpm); }
+    [ClientRpc] void RpcActive(bool active) { if (!isLocalPlayer) gameObject.active = active; }
     [ClientRpc] void RpcSetSkidmarks(bool value) { if (!isLocalPlayer)
             SetSkidmarking(value);
     }
@@ -252,8 +255,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
         bool doFullBrake = Input.GetKey("space");
         _doSkidmarking = _carIsNotOnSand && (doFullBrake || carIsSliding) && _currentSpeedKMH > 20f;
 
-//      SetBrakeSound(_doSkidmarking);
-//      CmdSetBrakeSound(_doSkidmarking);
+        SetBrakeSound(_doSkidmarking);
+        CmdSetBrakeSound(_doSkidmarking);
         SetSkidmarking(_doSkidmarking);
         CmdSyncSkidmarks(_doSkidmarking);
 
