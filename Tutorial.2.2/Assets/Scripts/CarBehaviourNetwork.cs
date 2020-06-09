@@ -84,7 +84,9 @@ public class CarBehaviourNetwork : NetworkBehaviour
     private CarBehaviourNetwork carBehaviour;
     public TimingNetworkBehaviour timingNetworkBehaviour;
 
-    public TMP_Text playerName;
+    public TMP_Text playerNameText;
+    [SyncVar(hook="OnPlayerNameChanged")]
+    public string playerName;
 
 
     ////////////////////////////
@@ -108,6 +110,12 @@ public class CarBehaviourNetwork : NetworkBehaviour
         RpcChangeText(value);
     }
 
+    [Command]
+    public void CmdIncreaseRank(int value)
+    {
+        RpcIncreaseRank(value);
+    }
+
 
     // Remote Procedure calls are called on the server and executed on the clients
     [ClientRpc]
@@ -117,6 +125,7 @@ public class CarBehaviourNetwork : NetworkBehaviour
         {
             timingNetworkBehaviour = GameObject.Find("GateCollider").GetComponent<TimingNetworkBehaviour>();
         }
+
         if (!isLocalPlayer)
             timingNetworkBehaviour.SetRankingsText(value);
     }
@@ -133,6 +142,28 @@ public class CarBehaviourNetwork : NetworkBehaviour
     [ClientRpc] void RpcActive(bool active) { if (!isLocalPlayer) gameObject.active = active; }
     [ClientRpc] void RpcSetSkidmarks(bool value) { if (!isLocalPlayer)
             SetSkidmarking(value);
+    }
+
+    [Command]
+    void CmdSetPlayerText(string value)
+    {
+        playerName = value;
+    }
+    [ClientRpc]
+    public void RpcIncreaseRank(int value)
+    {
+        if (timingNetworkBehaviour == null)
+        {
+            timingNetworkBehaviour = GameObject.Find("GateCollider").GetComponent<TimingNetworkBehaviour>();
+        }
+
+        if (!isLocalPlayer)
+            timingNetworkBehaviour.SetIncreaseRank(value);
+    }
+
+    void OnPlayerNameChanged(string value)
+    {
+        SetPlayerText(value);
     }
 
     private Gear[] sportGears = new Gear[]
@@ -156,7 +187,7 @@ public class CarBehaviourNetwork : NetworkBehaviour
 
     void Start()
     {
-        
+        carBehaviour = ClientScene.localPlayers[0].gameObject.GetComponent<CarBehaviourNetwork>();
         _rigidBody = GetComponent<Rigidbody>();
         _rigidBody.centerOfMass = new Vector3(centerOfMass.localPosition.x,
                                               centerOfMass.localPosition.y,
@@ -198,10 +229,17 @@ public class CarBehaviourNetwork : NetworkBehaviour
             gearText = GameObject.Find("GearText").GetComponent<TMPro.TMP_Text>();
         }
 
-    _isInitialized = true;
+        _isInitialized = true;
         ReapplyPrefs();
 
+        if (isServer)
+        {
+            string value = LobbyManager.instance.playersListBehaviour
+                .LobbyPlayerList[connectionToClient.connectionId].playerName;
 
+            SetPlayerText(value);
+            CmdSetPlayerText(value);
+        }
     }
 
     void FixedUpdate()
@@ -357,8 +395,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
         SetRPMEffects(engineRPM);
         CmdSetRPMEffects(engineRPM);
 
-        playerName.transform.LookAt(Camera.main.transform);
-        playerName.transform.Rotate(0,180,0);
+        playerNameText.transform.LookAt(Camera.main.transform);
+        playerNameText.transform.Rotate(0,180,0);
     }
 
     // Gets called from network when local player starts
@@ -451,6 +489,8 @@ public class CarBehaviourNetwork : NetworkBehaviour
 
     void OnGUI()
     {
+        playerNameText.text = playerName;
+
         if (!isLocalPlayer)
             return;
 
@@ -460,9 +500,12 @@ public class CarBehaviourNetwork : NetworkBehaviour
         // SpeedText show current KMH
         speedText.text = _currentSpeedKMH.ToString("0");
         gearText.text = _currentGear.ToString("0");
+    }
 
-        playerName.text = LobbyManager.instance.playersListBehaviour
-            .LobbyPlayerList[playerControllerId].playerName;
+    void SetPlayerText(string value)
+    {
+        playerName = value;
+        playerNameText.text = playerName;
     }
 
     class Gear

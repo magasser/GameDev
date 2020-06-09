@@ -15,6 +15,7 @@ public class TimingNetworkBehaviour : NetworkBehaviour
     [SyncVar]
     private float _pastTime = 0;
     private string rankings = "";
+    private int rank = 1;
     private float localtime = 0;
     private CarBehaviourNetwork _carScript = null;
     private AudioSource _beep;
@@ -117,6 +118,11 @@ public class TimingNetworkBehaviour : NetworkBehaviour
         ranking.text = value;
     }
 
+    public void SetIncreaseRank(int value)
+    {
+        rank = value;
+    }
+
     // Trigger event handler when the car passes the gate
     void OnTriggerEnter(Collider other)
     {
@@ -129,9 +135,11 @@ public class TimingNetworkBehaviour : NetworkBehaviour
             _carScript.thrustEnabled = false;
             ranking.gameObject.active = true;
             _carScript.CmdActive(false);
-            string value = rankings + LobbyManager.instance.playersListBehaviour.LobbyPlayerList[ClientScene.localPlayers[0].playerControllerId].playerName + ": " + localtime.ToString("0.0") + "\n";
+            string value = $"{rankings}{rank++}. {_carScript.playerName}: {localtime:N1}\n";
             SetRankingsText(value);
+            SetIncreaseRank(rank);
             _carScript.CmdChangeText(value);
+            _carScript.CmdIncreaseRank(rank);
         }
     }
 }

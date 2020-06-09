@@ -10144,8 +10144,9 @@ MonoBehaviour:
   rocketL: {fileID: 4024545042535037394}
   rocketR: {fileID: 7508847148102709473}
   collider: {fileID: 861166862}
-  carBehaviour: {fileID: 615686616}
-  playerName: {fileID: 2972737650810425155}
+  timingNetworkBehaviour: {fileID: 0}
+  playerNameText: {fileID: 2972737650810425155}
+  playerName: 
 --- !u!114 &874079322
 MonoBehaviour:
   m_ObjectHideFlags: 0
